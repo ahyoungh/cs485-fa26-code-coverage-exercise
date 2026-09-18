@@ -8,22 +8,49 @@ The original tests brought `prime_finder.py` to **73%** coverage (9 missing stat
 
 ## Branches that were untested
 
-| Location | What was untested |
-|---|---|
-| `PrimeFinder.__init__` | The `if initial_limit < 1 or not isinstance(...)` condition was never true, so the `raise ValueError` never ran. |
-| `PrimeFinder.is_prime` | The `if n > self._limit` condition was never true, so `_extend_sieve` was never called. |
-| `PrimeFinder._extend_sieve` | The entire method was unreached, because it is only called from the branch above. |
-| `PrimeFinder.list_first_n_primes` | The `if self.is_prime(n)` line was only partially covered: its False outcome never happened (see the note below). |
+1. `__init__`: `if initial_limit < 1 or not isinstance(initial_limit, int)` -> **True** outcome (`raise ValueError`)
+2. `is_prime`: `if n > self._limit` -> **True** outcome (call to `_extend_sieve`)
+3. `_extend_sieve`: method body never executed, so none of its branches ran
+   1. `for num in range(2, int(new_limit ** 0.5) + 1)` -> loop body
+   2. `if self._sieve[num]` -> **True** outcome (mark multiples as not prime)
+   3. `if self._sieve[num]` -> **False** outcome (skip composite `num`)
+4. `list_first_n_primes`: `if self.is_prime(n)` -> **False** outcome (see the note below)
 
 ## Tests added
 
 All of the new tests are in `tests/test_prime_finder.py`.
 
-| Test | Covers |
-|---|---|
-| `TestInit.test_raises_value_error_given_invalid_limit` (parametrized with `0` and `-1`) | The `ValueError` in `__init__`. |
-| `TestIsPrime.test_returns_true_given_a_prime_within_limit` and `test_returns_false_given_a_composite_within_limit` | The True and False results of `is_prime` for numbers inside the default limit of 1000. |
-| `TestIsPrime.test_extends_sieve_and_classifies_given_n_above_limit` (parametrized with `1009` and `1010`) | The `n > self._limit` branch and every line of `_extend_sieve`, including both outcomes of its `if self._sieve[num]` check. |
+- `TestInit.test_raises_value_error_given_invalid_limit` (parametrized with `0` and `-1`)
+  - covers branch 1
+- `TestIsPrime.test_returns_true_given_a_prime_within_limit`
+  - covers the prime results of `is_prime` inside the default limit of 1000
+- `TestIsPrime.test_returns_false_given_a_composite_within_limit`
+  - covers the composite results of `is_prime` inside the default limit of 1000
+- `TestIsPrime.test_extends_sieve_and_classifies_given_n_above_limit` (parametrized with `1009` and `1010`)
+  - covers branches 2, 3.1, 3.2 and 3.3
+- `TestFirstNPrimes.test_has_correct_number_of_elements_given_a_valid_length` (existing test)
+  - covers branch 4, once `n += 1` is added
+
+## Results
+
+Final coverage report (coverage.py v7.16.1, branch coverage enabled, generated 2026-09-18):
+
+| File | Statements | Missing | Branches | Partial | Coverage |
+|---|---|---|---|---|---|
+| `primes/__init__.py` | 0 | 0 | 0 | 0 | 100% |
+| `primes/prime_finder.py` | 38 | 0 | 20 | 0 | 100% |
+| `tests/__init__.py` | 0 | 0 | 0 | 0 | 100% |
+| `tests/test_prime_finder.py` | 34 | 0 | 0 | 0 | 100% |
+| **Total** | **72** | **0** | **20** | **0** | **100%** |
+
+For `primes/prime_finder.py`, the coverage before and after:
+
+| | Statements missing | Branches partial | Coverage |
+|---|---|---|---|
+| Before | 9 | 3 | 73% |
+| After | 0 | 0 | 100% |
+
+All 18 tests pass.
 
 ## Note: the increment in the `while` loop
 

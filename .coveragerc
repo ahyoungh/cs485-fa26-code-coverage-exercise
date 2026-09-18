@@ -13,4 +13,4 @@
 
 [run]
 branch = True
-source = primes
+source = primes, tests
