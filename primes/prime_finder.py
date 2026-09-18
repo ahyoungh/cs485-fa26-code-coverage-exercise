@@ -34,6 +34,7 @@ class PrimeFinder:
         while len(primes) < length:
             if self.is_prime(n):
                 primes.append(n)
+            n += 1
 
         return primes
 
